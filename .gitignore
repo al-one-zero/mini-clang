@@ -1,0 +1,15 @@
+.depend
+*.swp
+ast.cmi
+clang
+lexer.cmi
+lexer.cmo
+lexer.ml
+main.cmi
+main.cmo
+parser.cmi
+parser.cmo
+parser.ml
+parser.mli
+parser.output
+tests/
