@@ -15,18 +15,21 @@
 %}
 
 %token ELSE FLOAT FOR IF NULL RETURN STRUCT VOID WHILE EOF
-%token FLOAT
-%token INT
-%token STRING
-%token CHAR
-%token <string> CST
+%token FLOAT INT STRING CHAR
+%token <string> C_INT C_FLOAT
 %token <string> IDENT
-%token COMMA LP RP LCB RCB  LSB RSB
 %token SC 
+%token COMMA LP RP LCB RCB  LSB RSB
 
 %token PTR
 %token MULT DIV
 %token PLUS MINUS
+%token EQ
+
+%right EQ
+%left COMMA
+
+%token TEST
 
 %start file
 %type <Ast.file> file
@@ -38,17 +41,36 @@
         ;
 
     decls:
-        | decl decls    { $1::$2 }
+        | decl decls    { $1 :: $2 }
         |               { [] }
         ;
 
     decl:
-        | decl_var      { Expr($1) }
-        | error         { parse_error "Unknown declaration" ; ExprError }
+        | decl_var_init { $1 }
+        | error         { parse_error "Unknown declaration" ;  DeclError }
         ;
 
-    decl_var:
-        | var_type var SC { Var($2, $1, "") }
+    decl_var_init:
+        | var_type var_init SC { Var($1, $2) }
+        ;
+
+    var_init:
+        | var_expr COMMA var_init   { $1 :: $3 } 
+        | var_expr                  { $1 :: [] }
+        ;
+    
+    var_expr:
+        | var expr_opt %prec COMMA  { ($1, $2) }
+        ;
+
+    expr_opt:
+        | EQ expression { $2 }
+        |               { None }
+        ;
+
+    expression:
+        | C_INT       { Cst(Int, $1) }
+        | C_FLOAT     { Cst(Float, $1) }
         ;
 
     var_type:
@@ -62,5 +84,7 @@
     var:
         | IDENT            { $1 }
         ;
+
+
 
 %%
