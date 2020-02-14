@@ -39,9 +39,9 @@ rule nexttoken = parse
   | '}'             { RCB }
   | '['             { LSB }
   | ']'             { RSB }
-  | digit+ as i     { CST i}
-  | r_float as f    { CST f }
+  | '='             { EQ }
+  | ','             { COMMA }
+  | digit+ as i     { C_INT i }
+  | r_float as f    { C_FLOAT f }
   | eof             { EOF }
   | _ as t         { raise (Lexing_error t) }
- 
-
