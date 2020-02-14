@@ -9,13 +9,13 @@
             (finish.pos_cnum - finish.pos_bol)
             msg
 
-    let parse_error msg =
-        error_string_format msg (rhs_start_pos 1) (rhs_end_pos 1)
+    let parse_error msg = error_string_format msg (rhs_start_pos 1) (rhs_end_pos 1)
+
 
 %}
 
-%token ELSE FLOAT FOR IF NULL RETURN STRUCT VOID WHILE EOF
-%token FLOAT INT STRING CHAR
+%token ELSE FOR IF NULL RETURN STRUCT WHILE EOF
+%token FLOAT INT STRING CHAR VOID
 %token <string> C_INT C_FLOAT
 %token <string> IDENT
 %token SC 
@@ -27,9 +27,6 @@
 %token EQ
 
 %right EQ
-%left COMMA
-
-%token TEST
 
 %start file
 %type <Ast.file> file
@@ -47,11 +44,12 @@
 
     decl:
         | decl_var_init { $1 }
-        | error         { parse_error "Unknown declaration" ;  DeclError }
+        | decl_struct   { $1 }
+        | error         { DeclError }
         ;
 
     decl_var_init:
-        | var_type var_init SC { Var($1, $2) }
+        | var_type var_init SC { VarDecl($1, $2) }
         ;
 
     var_init:
@@ -60,31 +58,50 @@
         ;
     
     var_expr:
-        | var expr_opt %prec COMMA  { ($1, $2) }
+        | ident expr_opt  { ($1, $2) }
         ;
 
     expr_opt:
-        | EQ expression { $2 }
+        | EQ expression { Some($2) }
         |               { None }
         ;
 
     expression:
-        | C_INT       { Cst(Int, $1) }
-        | C_FLOAT     { Cst(Float, $1) }
+        | C_INT     { Cst(Int, $1) }
+        | C_FLOAT   { Cst(Float, $1) }
+        | NULL      { Null }
+        | ident     { Ident($1) }
         ;
 
     var_type:
-        | VOID      { Void }
-        | INT       { Int }
-        | FLOAT     { Float }
-        | STRING    { String }
-        | CHAR      { Char }
+        | VOID          { Void }
+        | INT           { Int }
+        | FLOAT         { Float }
+        | STRING        { String }
+        | CHAR          { Char }
         ;
 
-    var:
+    ident:
         | IDENT            { $1 }
         ;
 
+    decl_struct:
+        | STRUCT ident LCB decl_vars_opt RCB SC { StructDecl($2, $4) }
+        ;
 
+    decl_vars_opt:
+        | decl_vars { Some($1) }
+        |           { None }
+        ;
+
+    decl_vars:
+        | var_type vars SC decl_vars    { VarDecl( $1, $2 ) :: $4 }
+        | var_type vars SC              { VarDecl( $1, $2 ) :: [] }
+        ;
+
+    vars:
+        | ident COMMA vars  { ($1, None) :: $3 }
+        | ident             { ($1, None) :: [] }
+        ;
 
 %%
