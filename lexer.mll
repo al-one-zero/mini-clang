@@ -41,6 +41,18 @@ rule nexttoken = parse
   | ']'             { RSB }
   | '='             { EQ }
   | ','             { COMMA }
+  | '*'             { STAR }
+  | '+'             { PLUS }
+  | '-'             { MINUS }
+  | "=="            { EQUAL }
+  | "!="            { NEQUAL }
+  | "&&"            { AND }
+  | "||"            { OR }
+  | '<'             { SLT }
+  | '>'             { SGT }
+  | "<="            { LT }
+  | ">="            { GT }
+  | '%'             { MOD }
   | digit+ as i     { C_INT i }
   | r_float as f    { C_FLOAT f }
   | eof             { EOF }
