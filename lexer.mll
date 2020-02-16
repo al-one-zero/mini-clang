@@ -9,7 +9,6 @@
                 "if", IF;
                 "int", INT;
                 "float", FLOAT;
-                "string", STRING;
                 "char", CHAR;
                 "null", NULL;
                 "return", RETURN;
@@ -28,9 +27,13 @@ let exp = ('e' | 'E') ('-' | '+')? (digit)+
 let r_float = (digit+ '.' digit* exp?) | (digit* '.' digit+ exp?) | (digit+ exp)
 let ident = (alpha | '_')(alpha | '_' | digit)*
 let space = [' ' '\t' '\n']
+let eol = '\n'|"\r\n"
 
 rule nexttoken = parse
     space+          { nexttoken lexbuf }
+  | "/*"            { comment lexbuf }
+  | "//"            { s_comment lexbuf }
+  | "*/"            { failwith "Commentaire non ouvert" }
   | ident as i      { id_or_kw i }
   | ';'             { SC }
   | '('             { LP }
@@ -42,6 +45,7 @@ rule nexttoken = parse
   | '='             { EQ }
   | ','             { COMMA }
   | '*'             { STAR }
+  | '/'             { DIV }
   | '+'             { PLUS }
   | '-'             { MINUS }
   | "=="            { EQUAL }
@@ -61,5 +65,16 @@ rule nexttoken = parse
   | "--"            { DECR }
   | digit+ as i     { C_INT i }
   | r_float as f    { C_FLOAT f }
+  | ''' (_? as c) '''    { C_CHAR c }
+  | '"' (_? as c) '"'    { C_CHAR c }
   | eof             { EOF }
   | _ as t         { raise (Lexing_error t) }
+
+and comment = parse
+    "*/"    { nexttoken lexbuf }
+  | _       { comment lexbuf }
+  | eof     { failwith "Commentaire non fermé" }
+
+and s_comment = parse
+    eol     { nexttoken lexbuf }
+  | _       { s_comment lexbuf }
