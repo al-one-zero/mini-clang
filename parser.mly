@@ -32,8 +32,12 @@
 %token LT SLT GT SGT
 %token PLUS MINUS
 %token MULT DIV MOD
+%token NOT INCR DECR ADRESS PTR POS NEG
+%token ARROW DOT
 
 
+%right THEN
+%right ELSE
 %right EQ
 %left OR
 %left AND
@@ -41,7 +45,10 @@
 %left LT SLT GT SGT
 %left PLUS MINUS
 %left MULT DIV MOD STAR
+%right NOT ADRESS PTR POS NEG
+%left LP RP LSB RSB ARROW DOT
 %left COMMA SC
+%nonassoc INCR DECR
 
 %start file
 %type <Ast.file> file
@@ -110,6 +117,18 @@
         | expression SGT    expression { Binop($1, StrictGrt, $3) } %prec SGT
         | expression AND    expression { Binop($1, And, $3) } %prec AND
         | expression OR     expression { Binop($1, Or, $3) } %prec OR
+        | expression LSB expression RSB { Subscript($1, $3) }
+        | LP expression RP              { $2 }
+        | expression DOT expression     { Binop($1, Dot, $3) } %prec DOT
+        | expression ARROW expression   { Binop($1, Arrow, $3) } %prec ARROW
+        | expression INCR               { Unop(Incr, $1) } %prec INCR
+        | expression DECR               { Unop(Decr, $1) } %prec DECR
+        | INCR expression               { Unop(Incr, $2) } %prec INCR
+        | DECR expression               { Unop(Decr, $2) } %prec DECR
+        | ADRESS expression             { Unop(Adress, $2) } %prec ADRESS
+        | NOT expression                { Unop(Not, $2) } %prec NOT
+        | MINUS expression              { Unop(Neg, $2) } %prec NEG
+        | PLUS expression               { Unop(Pos, $2) } %prec POS
         | C_INT     { Cst(Int, $1) }
         | C_FLOAT   { Cst(Float, $1) }
         | NULL      { Null }
@@ -178,8 +197,26 @@
     instruction:
         | expression SC { Expr($1) }
         | block         { Block($1) }
+        | IF LP expression RP instruction                           { If($3, $5) } %prec THEN
+        | IF LP expression RP instruction ELSE instruction          { IfThEl($3, $5, $7) }
+        | WHILE LP expression RP instruction                        { While($3, $5) }
+        | FOR LP exprs_opt SC expr_opt SC exprs_opt RP instruction  { For($3, $5, $7, $9) }
         | RETURN expression SC  { Return(Some($2)) }
         | RETURN SC  { Return(None) }
         ;
 
+    exprs_opt:
+        | exprs { Some($1) }
+        |       { None }
+        ;
+
+    exprs:
+        | expression COMMA exprs    { $1 :: $3 }
+        | expression                { $1 :: [] }
+        ;
+
+    expr_opt:
+        | expression    { Some($1) }
+        |               { None }
+        ;
 %%
