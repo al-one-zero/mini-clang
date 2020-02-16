@@ -65,12 +65,12 @@
         ;
 
     decl_var_init:
-        | var_type var_init SC { VarDecl($1, $2) }
+        | var_type var_inits SC { VarDecl($1, $2) }
         ;
 
-    var_init:
-        | var_expr COMMA var_init   { $1 :: $3 } 
-        | var_expr                  { $1 :: [] }
+    var_inits:
+        | var_expr COMMA var_inits   { $1 :: $3 } 
+        | var_expr                   { $1 :: [] }
         ;
     
     var_expr:
@@ -78,8 +78,21 @@
         ;
 
     assign_opt:
-        | EQ expression { Some($2) }
-        |               { None }
+        | EQ expression         { Some($2) }
+        | EQ LCB init RCB       { Some(StructInst(Some($3))) }
+        | EQ LCB RCB            { Some(StructInst(None)) }
+        |                       { None }
+        ;
+
+    init:
+        | expression COMMA init     { $1 :: $3 }
+        | expression COMMA init_b   { $1 :: $3 }
+        | expression                { $1 :: [] }
+        ;
+
+    init_b:
+        | LCB init RCB  { StructInst(Some($2)) :: [] }
+        | LCB RCB       { StructInst(None) :: [] }
         ;
 
     expression:
@@ -163,6 +176,9 @@
     
     instruction:
         | expression SC { Expr($1) }
+        | block         { Block($1) }
+        | RETURN expression SC  { Return(Some($2)) }
+        | RETURN SC  { Return(None) }
         ;
 
 %%
