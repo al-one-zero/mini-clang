@@ -17,7 +17,7 @@ type bop = Plus
 
 type uop = Pos | Neg | Ptr | Adress | Not | Incr | Decr
 
-type vtype = Void | Int | Float | String | Char | StructName of string | Ptr of vtype
+type vtype = Void | Int | Float | Char | StructName of string | Ptr of vtype
 
 type expr = Ident of string
   | Cst of vtype * string
