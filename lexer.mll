@@ -53,6 +53,12 @@ rule nexttoken = parse
   | "<="            { LT }
   | ">="            { GT }
   | '%'             { MOD }
+  | '.'             { DOT }
+  | '&'             { ADRESS }
+  | '!'             { NOT }
+  | "->"            { ARROW }
+  | "++"            { INCR }
+  | "--"            { DECR }
   | digit+ as i     { C_INT i }
   | r_float as f    { C_FLOAT f }
   | eof             { EOF }
