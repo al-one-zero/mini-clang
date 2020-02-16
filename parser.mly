@@ -123,6 +123,7 @@
         | STRING        { String }
         | CHAR          { Char }
         | var_type STAR { Ptr($1) }
+        | STRUCT ident  { StructName($2) }
         ;
 
     ident:
