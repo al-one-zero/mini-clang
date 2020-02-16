@@ -12,13 +12,11 @@
 
     let parse_error msg = error_string_format msg (rhs_start_pos 1) (rhs_end_pos 1);;
 
-    (*set_trace true*)
-
 %}
 
 %token ELSE FOR IF NULL RETURN STRUCT WHILE EOF
-%token FLOAT INT STRING CHAR VOID
-%token <string> C_INT C_FLOAT
+%token FLOAT INT CHAR VOID
+%token <string> C_INT C_FLOAT C_CHAR
 %token <string> IDENT
 %token SC 
 %token COMMA LP RP LCB RCB  LSB RSB
@@ -131,6 +129,7 @@
         | PLUS expression               { Unop(Pos, $2) } %prec POS
         | C_INT     { Cst(Int, $1) }
         | C_FLOAT   { Cst(Float, $1) }
+        | C_CHAR    { Cst(Char, $1) }
         | NULL      { Null }
         | ident     { Ident($1) }
         ;
@@ -139,7 +138,6 @@
         | VOID          { Void }
         | INT           { Int }
         | FLOAT         { Float }
-        | STRING        { String }
         | CHAR          { Char }
         | var_type STAR { Ptr($1) }
         | STRUCT ident  { StructName($2) }
