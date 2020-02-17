@@ -1,0 +1,55 @@
+type token =
+  | ELSE
+  | FOR
+  | IF
+  | NULL
+  | RETURN
+  | STRUCT
+  | WHILE
+  | EOF
+  | FLOAT
+  | INT
+  | CHAR
+  | VOID
+  | TYPE
+  | C_INT of (string)
+  | C_FLOAT of (string)
+  | C_CHAR of (string)
+  | IDENT of (string)
+  | SC
+  | COMMA
+  | LP
+  | RP
+  | LCB
+  | RCB
+  | LSB
+  | RSB
+  | STAR
+  | PTR
+  | EQ
+  | OR
+  | AND
+  | EQUAL
+  | NEQUAL
+  | LT
+  | SLT
+  | GT
+  | SGT
+  | PLUS
+  | MINUS
+  | MULT
+  | DIV
+  | MOD
+  | NOT
+  | INCR
+  | DECR
+  | ADRESS
+  | POS
+  | NEG
+  | ARROW
+  | DOT
+
+val file :
+  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.file
+
+exception Parsing_error of string * Lexing.position * Lexing.position

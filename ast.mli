@@ -1,16 +1,16 @@
-type bop = Plus   
-  | Minus   
-  | Mult   
-  | Div   
-  | Mod   
-  | Equate   
-  | Equal   
-  | NEqual   
-  | LowTh   
-  | GrtTh   
-  | StrictLow  
-  | StrictGrt   
-  | And   
+type bop = Plus
+  | Minus
+  | Mult
+  | Div
+  | Mod
+  | Equate
+  | Equal
+  | NEqual
+  | LowTh
+  | GrtTh
+  | StrictLow
+  | StrictGrt
+  | And
   | Or
   | Dot
   | Arrow
@@ -42,3 +42,4 @@ and instr = Decl of decl
     | Block of instr list option
 
 type file = File of decl list
+

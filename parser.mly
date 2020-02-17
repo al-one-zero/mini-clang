@@ -2,15 +2,17 @@
     open Ast
     open Lexing
     open Parsing
-    
-    exception Parsing_error of string * Lexing.position * Lexing.position
 
-    let parse_err lexpos msg = raise (Parsing_error(msg, (rhs_start_pos lexpos), (rhs_end_pos lexpos)))
+    exception Parsing_error of string * position * position
+    
+    let parse_err lexpos msg = raise (Parsing_error(msg,
+                                                    (rhs_start_pos lexpos),
+                                                    (rhs_end_pos lexpos)))
 
 %}
 
 %token ELSE FOR IF NULL RETURN STRUCT WHILE EOF
-%token FLOAT INT CHAR VOID
+%token FLOAT INT CHAR VOID TYPE
 %token <string> C_INT C_FLOAT C_CHAR
 %token <string> IDENT
 %token SC 
@@ -42,6 +44,8 @@
 %left LP RP LSB RSB ARROW DOT
 %left COMMA SC
 %nonassoc INCR DECR
+%left TYPE
+%left IDENT
 
 %start file
 %type <Ast.file> file
@@ -62,11 +66,11 @@
         | decl_var_init { $1 }
         | decl_struct   { $1 }
         | decl_fun      { $1 }
+        | error SC                { parse_err 1 "Declaration expected" }
         ;
 
     decl_var_init:
         | var_type var_inits SC { VarDecl($1, $2) }
-        | error                 { parse_err 3 "End of statment expected" } %prec SC
         ;
 
     var_inits:
@@ -135,12 +139,14 @@
         | INT           { Int }
         | FLOAT         { Float }
         | CHAR          { Char }
-        | var_type STAR { Ptr($1) }
+        | var_type STAR { Ptr($1) } %prec STAR
         | STRUCT ident  { StructName($2) }
+        | error STAR    { parse_err 1 "Unknown type" } %prec TYPE
         ;
 
     ident:
         | IDENT     { $1 }
+        | error     { parse_err 1 "Illegal identifier" } %prec IDENT
         ;
 
     decl_struct:
@@ -163,17 +169,21 @@
         ;
 
     decl_fun:
-        | var_type ident LP args_opt RP block { FunDecl($1, $2, $4, $6) }
+        | var_type ident LP args_opt RP block   { FunDecl($1, $2, $4, $6) }
+        | error ident                           { parse_err 1 "Unknown type" }
         ;
 
     args_opt:
         | args  { Some($1) }
         |       { None }
+        | error { parse_err 1 "pout" }
         ;
 
     args:
         | var_type ident COMMA args { Param($1, $2) :: $4 }
         | var_type ident            { Param($1, $2) :: [] }
+        | error ident               { parse_err 1 "Unknown type" }
+        | var_type ident COMMA error{ parse_err 4 "Variable expected" }
         ;
 
     block:

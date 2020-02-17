@@ -2,6 +2,7 @@ open Format
 open Parsing
 open Lexing
 open Printf
+open Ast
 
 let ifile = ref ""
 
@@ -18,6 +19,59 @@ let print_error_string (msg, start, finish) =
         (start.pos_cnum - start.pos_bol)
         (finish.pos_cnum - finish.pos_bol)
         msg
+
+
+let print_bop = function
+    | Plus -> "+"
+    | Minus -> "-"
+    | Mult -> "*"
+    | Div -> "/"
+    | Mod -> "%"
+    | Equate -> "="
+    | Equal -> "=="
+    | NEqual -> "!="
+    | LowTh -> "<="
+    | GrtTh -> ">="
+    | StrictLow -> "<"
+    | StrictGrt -> ">"
+    | And -> "&&"
+    | Or -> "||"
+    | Dot -> "."
+    | Arrow -> "->"
+
+let print_uop = function
+    | Pos -> "+"
+    | Neg -> "-"
+    | Ptr -> "*"
+    | Adress -> "&"
+    | Not -> "!"
+    | Incr -> "++"
+    | Decr -> "--"
+
+let print_type = function
+    | Void -> "Void"
+    | Int -> "Int"
+    | _ -> "" 
+
+let print_decl = function
+    | VarDecl (t, lv) -> (print_type t) ^ (List.fold_left 
+                                (fun a (t, v) -> 
+                                    a ^ (match v with
+                                            | Some(va) -> va 
+                                            | None -> "None"))
+                                "" lv)
+    | _ -> ""
+(*    | If ->
+    | IfThEl ->
+    | While ->
+    | For ->
+    | Return ->
+    | Expr ->
+    | Block ->
+*)
+
+
+let print_ast = Printf.print ""
 
 let _ = 
   Arg.parse options (set_file ifile) usage;
