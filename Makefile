@@ -23,7 +23,7 @@ $(BIN):$(CMO)
 	ocamlyacc -v $<
 
 clean:
-	rm -f *.cm[io] *.o
+	rm -f *.cm[io] *.o *.output
 
 .depend depend:$(GENERATED)
 	rm -f .depend
