@@ -21,6 +21,7 @@ $(BIN):$(CMO)
 
 .mly.ml:
 	ocamlyacc -v $<
+	cp parser.mli.bak parser.mli
 
 clean:
 	rm -f *.cm[io] *.o *.output
