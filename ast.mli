@@ -32,7 +32,6 @@ type param = Param of vtype * string
 type decl = VarDecl of vtype * (string * (expr option)) list
     | FunDecl of vtype * string * param list option * instr list option
     | StructDecl of string * (decl list option)
-    | DeclError
 and instr = Decl of decl
     | If of expr * instr
     | IfThEl of expr * instr * instr

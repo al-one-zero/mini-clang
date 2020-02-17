@@ -3,14 +3,9 @@
     open Lexing
     open Parsing
     
-    let error_string_format msg start finish =
-        Printf.eprintf "(line %d: char %d..%d): %s\n"
-            start.pos_lnum
-            (start.pos_cnum - start.pos_bol)
-            (finish.pos_cnum - finish.pos_bol)
-            msg
+    exception Parsing_error of string * Lexing.position * Lexing.position
 
-    let parse_error msg = error_string_format msg (rhs_start_pos 1) (rhs_end_pos 1);;
+    let parse_err lexpos msg = raise (Parsing_error(msg, (rhs_start_pos lexpos), (rhs_end_pos lexpos)))
 
 %}
 
@@ -51,6 +46,7 @@
 %start file
 %type <Ast.file> file
 
+
 %%
 
     file:
@@ -66,16 +62,16 @@
         | decl_var_init { $1 }
         | decl_struct   { $1 }
         | decl_fun      { $1 }
-        | error         { DeclError }
         ;
 
     decl_var_init:
         | var_type var_inits SC { VarDecl($1, $2) }
+        | error                 { parse_err 3 "End of statment expected" } %prec SC
         ;
 
     var_inits:
-        | var_expr COMMA var_inits   { $1 :: $3 } 
-        | var_expr                   { $1 :: [] }
+        | var_expr COMMA var_inits  { $1 :: $3 } 
+        | var_expr                  { $1 :: [] }
         ;
     
     var_expr:
@@ -144,7 +140,7 @@
         ;
 
     ident:
-        | IDENT            { $1 }
+        | IDENT     { $1 }
         ;
 
     decl_struct:
