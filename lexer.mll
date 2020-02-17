@@ -18,7 +18,7 @@
     let kws_h = Hashtbl.create (List.length kws)
     let _ = List.iter (fun (l, c) -> Hashtbl.add kws_h l c) kws
     let id_or_kw s =  try Hashtbl.find kws_h s with _ -> IDENT(s)
-      
+
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
@@ -26,7 +26,7 @@ let digit = ['0'-'9']
 let exp = ('e' | 'E') ('-' | '+')? (digit)+
 let r_float = (digit+ '.' digit* exp?) | (digit* '.' digit+ exp?) | (digit+ exp)
 let ident = (alpha | '_')(alpha | '_' | digit)*
-let space = [' ' '\t' '\n']
+let space = [' ' '\t'] 
 let eol = '\n'|"\r\n"
 
 rule nexttoken = parse
@@ -67,6 +67,7 @@ rule nexttoken = parse
   | r_float as f    { C_FLOAT f }
   | ''' (_? as c) '''    { C_CHAR c }
   | '"' (_? as c) '"'    { C_CHAR c }
+  | eol             { new_line lexbuf ; nexttoken lexbuf }
   | eof             { EOF }
   | _ as t         { raise (Lexing_error t) }
 
@@ -76,5 +77,5 @@ and comment = parse
   | eof     { failwith "Commentaire non fermé" }
 
 and s_comment = parse
-    eol     { nexttoken lexbuf }
+    eol     { new_line lexbuf ; nexttoken lexbuf }
   | _       { s_comment lexbuf }
