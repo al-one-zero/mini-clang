@@ -1,5 +1,5 @@
-CMO=lexer.cmo parser.cmo main.cmo
-GENERATED=lexer.ml parser.ml parser.mli
+CMO=ast.cmo lexer.cmo parser.cmo main.cmo
+GENERATED=lexer.ml parser.ml parser.mli ast.mli
 BIN=clang
 FLAGS=
 

@@ -1,19 +1,4 @@
-type bop = Plus
-  | Minus
-  | Mult
-  | Div
-  | Mod
-  | Equate
-  | Equal
-  | NEqual
-  | LowTh
-  | GrtTh
-  | StrictLow
-  | StrictGrt
-  | And
-  | Or
-  | Dot
-  | Arrow
+type bop = Plus  | Minus | Mult | Div | Mod | Equate | Equal | NEqual | LowTh | GrtTh | StrictLow | StrictGrt | And | Or | Dot | Arrow
 
 type uop = Pos | Neg | Ptr | Adress | Not | Incr | Decr
 
@@ -43,3 +28,16 @@ and instr = Decl of decl
 
 type file = File of decl list
 
+val print_bop : bop -> string
+
+val print_uop : uop -> string
+
+val print_type : vtype -> string
+
+val print_expr : expr -> string
+
+val print_decl : decl -> string
+
+val print_instr : instr -> string
+
+val print_ast : file -> unit
