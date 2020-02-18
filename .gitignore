@@ -1,6 +1,7 @@
 .depend
 *.swp
 ast.cmi
+ast.cmo
 clang
 lexer.cmi
 lexer.cmo
