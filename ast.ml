@@ -103,13 +103,15 @@ and print_instr = function
     | If (e, i) -> sprintf "IfThen(%s, %s)" (print_expr e) (print_instr i)
     | IfThEl (e, i, j) -> sprintf "ITE(%s, %s, %s)" (print_expr e) (print_instr i) (print_instr j)
     | While (e, i) -> sprintf "While(%s, %s)" (print_expr e) (print_instr i)
-    | _ -> ""
-(*
-    | For ->
-    | Return ->
-    | Expr ->
-    | Block ->
-*)
+    | For (e1, c, e2, b) -> sprintf "For(%s;%s;%s)(%s)" 
+                                    (String.concat ", " (match e1 with Some e -> (map print_expr e) | None -> ""::[]))
+                                    (match c with Some cs -> print_expr cs | None -> "")
+                                    (String.concat ", " (match e2 with Some e -> (map print_expr e) | None -> ""::[]))
+                                    (print_instr b)
+    | Return e -> sprintf "Return(%s)" (match e with Some expr -> print_expr expr | None -> "")
+    | Expr e -> print_expr e
+    | Block b -> sprintf "{%s}" (match b with Some body -> (String.concat ";\n" (map print_instr body)) | None -> "unit")
+
 
 let print_ast = function
     | File f -> printf "File(\n" ;
