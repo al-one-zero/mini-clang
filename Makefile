@@ -1,6 +1,8 @@
 CMO=ast.cmo lexer.cmo parser.cmo main.cmo
 GENERATED=lexer.ml parser.ml parser.mli ast.mli
+SRC= lexer.mll parser.mly main.ml ast.mli ast.ml
 BIN=clang
+ARCHIVE=jean-marc_fares
 FLAGS=
 
 all: $(BIN)
@@ -21,10 +23,13 @@ $(BIN):$(CMO)
 
 .mly.ml:
 	ocamlyacc -v $<
-	cp parser.mli.bak parser.mli
+	echo "exception Parsing_error of string * Lexing.position * Lexing.position" >> parser.mli
 
 clean:
-	rm -f *.cm[io] *.o *.output
+	rm -f *.cm[io] *.o *.output parser.mli parser.ml lexer.ml lexer.mli
+
+archive:
+	tar -cvzf $(ARCHIVE).tar.gz --transform 's#^#$(ARCHIVE)/#' $(SRC) README.md tests/
 
 .depend depend:$(GENERATED)
 	rm -f .depend
